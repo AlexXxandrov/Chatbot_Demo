@@ -1,8 +1,8 @@
 # ✦ Demo personalizado — Guía rápida (LEAO)
 
-Con esto armas un chatbot a la medida de un prospecto en 5 minutos, para
-mandárselo y que vea SU propio asistente funcionando. Es tu mejor cierre para
-peces gordos (restaurantes, inmobiliarias, colegios).
+Con esto armas un chatbot a la medida de un prospecto en minutos, para
+mandárselo y que vea SU propio asistente funcionando. Es tu mejor cierre
+para peces gordos (restaurantes, inmobiliarias, colegios).
 
 ---
 
@@ -14,48 +14,60 @@ menú, toma reservaciones. Cuando el dueño ve eso, la venta casi se cierra sola
 
 ---
 
+## DOS FORMAS de cargar la info del negocio
+
+El chatbot toma la info del negocio de la carpeta **datos/**. Tienes dos caminos:
+
+### Opción 1 — Archivo de texto (datos/negocio.txt)  [más control]
+1. Abre `datos/negocio.txt`.
+2. Borra el ejemplo y escribe los datos reales del cliente (nombre, menú,
+   horario, servicios, preguntas frecuentes). Escribe normal, como si se lo
+   explicaras a una persona.
+3. Guarda. Listo.
+
+### Opción 2 — PDF del cliente (datos/negocio.pdf)  [más rápido]
+1. ¿El cliente te pasó su menú, folleto o catálogo en PDF? Solo renómbralo
+   a `negocio.pdf` y ponlo en la carpeta `datos/`.
+2. El chatbot le extrae el texto solo al arrancar. No tienes que escribir nada.
+
+> Si pones AMBOS (txt y pdf), el chatbot usa el .txt.
+> Nota: el PDF debe tener texto de verdad (seleccionable). Si es una foto o
+> un PDF escaneado, no se puede leer — en ese caso usa el negocio.txt.
+
+El bloque CONFIG (arriba en server.js) sigue existiendo para el nombre del bot,
+la ciudad y el saludo. Los datos finos (menú, precios, FAQ) van en el archivo.
+
+---
+
 ## Cómo armar uno (5 minutos)
 
-1. Abre el archivo `server.js`.
-2. Hasta arriba está el bloque **CONFIG** entre las líneas marcadas con 👇.
-   SOLO edita eso. No toques nada más.
-3. Llena los datos del prospecto:
-   - `NEGOCIO`: el nombre real (ej: "Restaurante La Troje")
-   - `GIRO`: qué es (ej: "restaurante")
-   - `CIUDAD`: dónde está
-   - `QUE_OFRECE`: 3-6 cosas que vende (sácalas de su Facebook o Google)
-   - `FUNCIONES`: qué quieres que haga el bot (reservar, cotizar, informar…)
-   - `HORARIO` y `CONTACTO`: si los tienes
-4. Guarda.
-
-Ejemplo lleno:
-```
-NEGOCIO: "Restaurante La Troje",
-GIRO: "restaurante de comida mexicana",
-CIUDAD: "Metepec",
-QUE_OFRECE: ["Comida mexicana contemporánea", "Terraza para eventos", "Servicio a domicilio"],
-FUNCIONES: ["mostrar el menú", "tomar reservaciones con nombre y fecha", "informar horarios"],
-HORARIO: "Lun-Dom 2pm-11pm",
-```
+1. En `server.js`, arriba, ajusta el bloque **CONFIG**: NOMBRE_BOT (o deja "Nova"),
+   NEGOCIO, GIRO, CIUDAD.
+2. Pon la info detallada en `datos/negocio.txt` O `datos/negocio.pdf`.
+3. Guarda.
 
 ---
 
 ## Cómo publicarlo
 
 Igual que Nova:
-1. Sube la carpeta a un repo de GitHub (o reusa uno y solo cambia el CONFIG).
+1. Sube la carpeta a un repo de GitHub (o reusa uno y solo cambia datos/ y CONFIG).
 2. Conéctalo a Railway → agrega la variable `ANTHROPIC_API_KEY`.
 3. Genera el dominio y mándale ESE link al prospecto por WhatsApp.
 
-TIP: puedes tener un solo proyecto en Railway e ir cambiando el CONFIG por
-prospecto, o duplicarlo si quieres tener varios demos vivos a la vez.
+IMPORTANTE: cuando cambies el archivo de datos, Railway hace redeploy y el
+chatbot lee la info nueva al reiniciar. Si cambiaste el archivo pero no ves el
+cambio, fuerza un redeploy en Railway.
+
+TIP: puedes tener un solo proyecto e ir cambiando datos/negocio.txt por prospecto,
+o duplicarlo si quieres varios demos vivos a la vez.
 
 ---
 
 ## Qué verá el prospecto
 
 - El chatbot lo saluda con el nombre de SU negocio.
-- Responde sobre lo que ese negocio ofrece.
+- Responde sobre lo que ese negocio ofrece (según el archivo que cargaste).
 - Toma datos de interesados (los ves en /api/leads-data).
 - Trae el chango de Nova y la marca LEAO discreta abajo.
 

@@ -62,8 +62,70 @@ const BACKUP = '/tmp/demo-leads.json';
 function guardarDisco(){ try { fs.writeFileSync(BACKUP, JSON.stringify(leadsCache)); } catch(e){} }
 function cargarDisco(){ try { if (fs.existsSync(BACKUP)) leadsCache = JSON.parse(fs.readFileSync(BACKUP,'utf8'))||[]; } catch(e){} }
 
-// ---- System prompt armado a partir de CONFIG ----
-const SYSTEM = `Eres ${CONFIG.NOMBRE_BOT} ✦, el asistente virtual de "${CONFIG.NEGOCIO}", un(a) ${CONFIG.GIRO} en ${CONFIG.CIUDAD}. Fuiste creado por LEAO 💻 como demostración.
+// ============================================================
+//  LECTOR DE ARCHIVO DEL NEGOCIO (txt o pdf)
+//  Al arrancar, busca en la carpeta datos/ un archivo:
+//    - datos/negocio.txt   (texto plano)  ó
+//    - datos/negocio.pdf   (se le extrae el texto)
+//  Lo que encuentre se le carga al chatbot como conocimiento.
+//  Si no hay archivo, usa solo lo del bloque CONFIG.
+// ============================================================
+async function leerInfoNegocio() {
+  const dir = './datos';
+  const txtPath = `${dir}/negocio.txt`;
+  const pdfPath = `${dir}/negocio.pdf`;
+
+  // 1) Preferir TXT si existe (es lo más simple y rápido)
+  try {
+    if (fs.existsSync(txtPath)) {
+      const texto = fs.readFileSync(txtPath, 'utf8').trim();
+      if (texto) {
+        console.log(`📄 Info cargada de negocio.txt (${texto.length} caracteres)`);
+        return texto;
+      }
+    }
+  } catch (e) {
+    console.error('⚠️ No se pudo leer negocio.txt:', e?.message);
+  }
+
+  // 2) Si no hay txt, intentar PDF (extracción con pdfjs)
+  try {
+    if (fs.existsSync(pdfPath)) {
+      const { getDocument } = await import('pdfjs-dist/legacy/build/pdf.mjs');
+      const data = new Uint8Array(fs.readFileSync(pdfPath));
+      const doc = await getDocument({ data, useSystemFonts: true }).promise;
+      let texto = '';
+      for (let i = 1; i <= doc.numPages; i++) {
+        const page = await doc.getPage(i);
+        const content = await page.getTextContent();
+        texto += content.items.map(it => it.str).join(' ') + '\n';
+      }
+      texto = texto.trim();
+      if (texto) {
+        console.log(`📄 Info extraída de negocio.pdf (${texto.length} caracteres)`);
+        return texto;
+      }
+      console.error('⚠️ El PDF no tenía texto extraíble (¿es una imagen escaneada? Entonces usa negocio.txt).');
+    }
+  } catch (e) {
+    console.error('⚠️ No se pudo leer negocio.pdf:', e?.message);
+  }
+
+  // 3) Nada encontrado
+  console.log('ℹ️ Sin archivo en datos/. Usando solo el bloque CONFIG.');
+  return '';
+}
+
+// Se llena al arrancar (abajo, en el listen)
+let INFO_ARCHIVO = '';
+
+// ---- System prompt: se arma como función para incluir el archivo ----
+function construirSystem() {
+  const bloqueArchivo = INFO_ARCHIVO
+    ? `\n\n# INFORMACIÓN DETALLADA DEL NEGOCIO (fuente principal — úsala para responder)\n${INFO_ARCHIVO}\n\nUsa la información de arriba como tu fuente principal. Si algo no está ahí, no lo inventes.`
+    : '';
+
+  return `Eres ${CONFIG.NOMBRE_BOT} ✦, el asistente virtual de "${CONFIG.NEGOCIO}", un(a) ${CONFIG.GIRO} en ${CONFIG.CIUDAD}. Fuiste creado por LEAO 💻 como demostración.
 
 # TU MISIÓN
 Atender a los clientes de ${CONFIG.NEGOCIO} con calidez y rapidez: responder sus dudas, darles información y tomar los datos de quien esté interesado.
@@ -76,7 +138,7 @@ ${CONFIG.FUNCIONES.map(x => "- " + x).join("\n")}
 
 # DATOS ÚTILES
 - Horario: ${CONFIG.HORARIO}
-- Contacto: ${CONFIG.CONTACTO}
+- Contacto: ${CONFIG.CONTACTO}${bloqueArchivo}
 
 # REGLAS DE ORO
 Máximo 30-40 palabras por respuesta. Sé claro, cálido y directo.
@@ -89,6 +151,9 @@ Ejemplo: "¡Con gusto! Déjame tus datos y en breve te contactamos. [FORM:demo]"
 
 # SALUDO
 Preséntate como ${CONFIG.NOMBRE_BOT}, el asistente de ${CONFIG.NEGOCIO}. ${CONFIG.SALUDO_EXTRA}`;
+}
+
+let SYSTEM = construirSystem();
 
 // ---- Chat ----
 app.post('/api/chat', async (req, res) => {
@@ -117,4 +182,9 @@ app.post('/api/lead', async (req, res) => {
 app.get('/api/leads-data', (req, res) => res.json(leadsCache));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => { cargarDisco(); console.log(`✦ Demo de ${CONFIG.NEGOCIO} en :${PORT}`); });
+app.listen(PORT, async () => {
+  cargarDisco();
+  INFO_ARCHIVO = await leerInfoNegocio();  // lee datos/negocio.txt o .pdf
+  SYSTEM = construirSystem();               // reconstruye el prompt ya con el archivo
+  console.log(`✦ Demo de ${CONFIG.NEGOCIO} en :${PORT}`);
+});
