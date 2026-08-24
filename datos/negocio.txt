@@ -1,1 +1,43 @@
+# ===================================================================
+#  INFORMACIÓN DEL NEGOCIO
+#  Borra este ejemplo y escribe aquí los datos reales del cliente.
+#  Entre más completo, mejor responde el chatbot. Escribe normal,
+#  como si le explicaras el negocio a una persona.
+#
+#  ALTERNATIVA: en vez de este .txt puedes poner un negocio.pdf
+#  (el menú, folleto o catálogo del cliente) en esta misma carpeta.
+#  El chatbot lo lee igual. Si hay .txt Y .pdf, usa el .txt.
+# ===================================================================
+
+NOMBRE DEL NEGOCIO: Restaurante La Troje
+
+QUÉ ES / A QUÉ SE DEDICA:
+Restaurante de comida mexicana contemporánea en Metepec. Ambiente familiar,
+terraza para eventos y servicio a domicilio.
+
+MENÚ / PRODUCTOS / SERVICIOS:
+- Entradas: guacamole, sopes, esquites (desde $85)
+- Platos fuertes: molcajete, arrachera, chiles en nogada de temporada ($180-$320)
+- Postres: pastel de elote, flan napolitano ($75)
+- Bebidas: aguas frescas, micheladas, mezcal artesanal
+
+HORARIO:
+Lunes a Domingo de 1:00 pm a 11:00 pm
+
+UBICACIÓN:
+Av. Comonfort 123, Metepec, Estado de México
+
+CONTACTO:
+Teléfono / WhatsApp: 722 000 0000
+
+RESERVACIONES:
+Sí, aceptamos reservaciones. Para grupos de más de 10 personas se pide anticipo.
+
+SERVICIO A DOMICILIO:
+Sí, en Metepec y zonas cercanas. Pedido mínimo $200.
+
+PREGUNTAS FRECUENTES:
+- ¿Tienen opciones vegetarianas? Sí, varios platillos.
+- ¿Aceptan tarjeta? Sí, todas las tarjetas y transferencia.
+- ¿Hay estacionamiento? Sí, gratuito para clientes.
 
